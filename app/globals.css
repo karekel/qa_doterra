@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'CyGrotesk';
+  src: url('/CyGrotesk-WideThin.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -26,18 +34,11 @@ body {
   overflow: hidden;
 }
 
-/* Background gradient matching the provided asset */
+/* Background image for chat screen */
 .app-background {
-  background: linear-gradient(160deg,
-      #f5e6d8 0%,
-      #f0c8d8 15%,
-      #e8a0c8 30%,
-      #d8a0e0 45%,
-      #c8b0e8 55%,
-      #d0c0f0 65%,
-      #c8d8f0 75%,
-      #d0e0f0 85%,
-      #e8e0f0 100%);
+  background-image: url('/素材/ELIGO bot bg.png');
+  background-size: cover;
+  background-position: center;
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -262,110 +263,203 @@ body {
   position: relative;
 }
 
-/* Password protection screen */
-.pw-screen {
+/* ===== Login page (frosted glass redesign) ===== */
+
+/* Full-screen background image */
+.app-bg-img {
+  background-image: url('/素材/ELIGO bot bg.png');
+  background-size: cover;
+  background-position: center;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Animated decorative circle */
+@keyframes circle-float {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  40% {
+    transform: translate(-50%, -52%) scale(1.045);
+  }
+  70% {
+    transform: translate(-50%, -48%) scale(0.968);
+  }
+}
+
+/* Logo section — single circle centered here, behind content */
+.logo-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* padding ≈ circle radius so circle is fully visible */
+  padding: clamp(110px, 21vw, 270px) 40px clamp(110px, 21vw, 270px);
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Single gradient circle: purple / rose / mint / peach */
+.logo-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(240px, 44vw, 580px);
+  height: clamp(240px, 44vw, 580px);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse 65% 60% at 23% 25%, rgba(138, 88, 195, 0.68) 0%, transparent 56%),
+    radial-gradient(ellipse 55% 50% at 64% 20%, rgba(218, 138, 172, 0.58) 0%, transparent 54%),
+    radial-gradient(ellipse 60% 56% at 19% 76%, rgba(132, 218, 192, 0.62) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 46% at 75% 72%, rgba(242, 212, 180, 0.52) 0%, transparent 52%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(254, 250, 255, 0.86) 0%, rgba(235, 224, 250, 0.28) 100%);
+  box-shadow: 0 0 55px 6px rgba(165, 140, 215, 0.16);
+  z-index: 0;
+  animation: circle-float 8s ease-in-out infinite;
+}
+
+/* Logo image + BOT text side by side */
+.logo-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+}
+
+/*
+ * BOT text: height matched to the rendered ELIGO logo image.
+ * Logo image renders at width=min(340px,52vw), original ratio 500:140.
+ * Rendered height ≈ 0.28 × min(340px,52vw).
+ * ELIGO text fills ~76% of that height → target ≈ 0.213 × min(340px,52vw).
+ * At 340px wide: 0.213×340 ≈ 72px → 4.5rem.
+ * At narrow screens (52vw): 0.213×52vw ≈ 11.1vw.
+ */
+.logo-bot-text {
+  font-family: 'CyGrotesk', sans-serif;
+  color: #ffffff;
+  font-size: clamp(2.4rem, 12.5vw, 5.4rem);
+  letter-spacing: 0.1em;
+  line-height: 1;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.12));
+}
+
+/* Outer layout wrapper */
+.login-outer {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  gap: 24px;
-  padding: 32px;
-  position: relative;
-  z-index: 1;
+  padding: 0 20px 80px;
+  gap: 0;
 }
 
-.pw-card {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  padding: 40px 32px;
-  max-width: 360px;
-  width: 100%;
+/* Frosted glass card — slightly overlaps circle bottom */
+.login-card-glass {
+  background: rgba(255, 255, 255, 0.40);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.10),
+    0 8px 24px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  width: min(340px, 45vw);
+  padding: 36px 32px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  gap: 18px;
+  position: relative;
+  z-index: 5;
+  margin-top: -52px; /* overlap circle bottom slightly */
 }
 
-.pw-title {
-  font-family: var(--font-dela-gothic), sans-serif;
-  font-size: 26px;
-  color: #FF2D8A;
-  -webkit-text-stroke: 1.2px #00D4D4;
-  paint-order: stroke fill;
-  text-shadow:
-    2px 2px 0 #00D4D4,
-    3px 3px 0 rgba(0, 180, 180, 0.3);
-  text-align: center;
-  margin: 0;
+@media (max-width: 400px) {
+  .login-card-glass {
+    width: 90vw;
+    padding: 28px 20px;
+  }
 }
 
-.pw-subtitle {
-  font-size: 14px;
-  color: #6B5B8A;
-  text-align: center;
-  margin: 0;
-}
-
-.pw-input {
+/* Pill-shaped password input */
+.pw-input-pill {
   width: 100%;
-  padding: 14px 18px;
-  border: 2px solid rgba(180, 165, 210, 0.4);
-  border-radius: 16px;
-  font-size: 16px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.6);
-  color: #333;
+  height: 52px;
+  padding: 0 26px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid rgba(210, 190, 240, 0.30);
+  box-shadow:
+    inset 0 1px 4px rgba(0, 0, 0, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+  font-size: 15px;
+  color: #4a3d6a;
   outline: none;
-  transition: border-color 0.2s;
-  letter-spacing: 4px;
+  transition: box-shadow 0.2s, border-color 0.2s;
 }
 
-.pw-input:focus {
-  border-color: #8B6DB5;
-  box-shadow: 0 0 0 3px rgba(139, 109, 181, 0.15);
+.pw-input-pill:focus {
+  border-color: rgba(167, 139, 250, 0.55);
+  box-shadow:
+    inset 0 1px 4px rgba(0, 0, 0, 0.04),
+    0 0 0 3px rgba(167, 139, 250, 0.22);
 }
 
-.pw-input.pw-error {
+.pw-input-pill::placeholder {
+  color: #b0a8c0;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+.pw-input-pill.pw-error {
   border-color: #FF4B6E;
   animation: shake 0.4s ease;
 }
 
-.pw-btn {
+/* Gradient pill button */
+.pw-btn-pill {
   width: 100%;
-  padding: 14px;
+  height: 52px;
+  border-radius: 9999px;
   border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #FF2D8A, #8B6DB5);
+  background: linear-gradient(to right, #fb7185, #f472b6, #8b5cf6);
   color: #fff;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 350;
+  letter-spacing: 0.06em;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 12px rgba(255, 45, 138, 0.25);
+  transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.32);
 }
 
-.pw-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(255, 45, 138, 0.35);
+.pw-btn-pill:hover:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 28px rgba(139, 92, 246, 0.44);
 }
 
-.pw-btn:active {
-  transform: translateY(0);
+.pw-btn-pill:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.22);
 }
 
-.pw-btn:disabled {
-  opacity: 0.6;
+.pw-btn-pill:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
-  transform: none;
 }
 
 .pw-error-msg {
   color: #FF4B6E;
   font-size: 13px;
   margin: 0;
+  padding-left: 8px;
   animation: fadeIn 0.3s ease;
 }
 
