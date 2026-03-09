@@ -8,6 +8,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [detailMode, setDetailMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Password protection state
@@ -79,6 +80,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...messages, userMessage],
+          detailMode,
         }),
       });
 
@@ -134,7 +136,7 @@ export default function Home() {
   // Show nothing while checking auth
   if (isCheckingAuth) {
     return (
-      <div style={{ position: 'relative', width: '100%', minHeight: '100vh', overflow: 'hidden' }}>
+      <div className="page-screen-min">
         <div className="app-bg-img" />
       </div>
     );
@@ -143,7 +145,7 @@ export default function Home() {
   // Password screen
   if (!isAuthenticated) {
     return (
-      <div style={{ position: 'relative', width: '100%', minHeight: '100vh', overflow: 'hidden' }}>
+      <div className="page-screen-min">
         {/* Background image */}
         <div className="app-bg-img" />
 
@@ -201,14 +203,14 @@ export default function Home() {
   // ── Welcome screen ──────────────────────────────────────────────
   if (isWelcome) {
     return (
-      <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
+      <div className="page-screen">
         <div className="app-background" />
         <div
           className="animate-fadeIn"
           style={{
             position: 'relative',
             zIndex: 1,
-            height: '100vh',
+            height: '100%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -249,28 +251,41 @@ export default function Home() {
           </div>
 
           {/* Input directly below character */}
-          <form
-            onSubmit={handleSubmit}
-            className="input-container"
-            style={{ width: '100%', maxWidth: '448px' }}
-          >
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="なんでも聞いてください！"
-              className="input-field"
-              disabled={isLoading}
-            />
-            <button
-              type="submit"
-              className="input-action-btn send-btn"
-              disabled={!input.trim() || isLoading}
-              aria-label="送信"
+          <div style={{ width: '100%', maxWidth: '448px' }}>
+            <form
+              onSubmit={handleSubmit}
+              className="input-container"
             >
-              <ArrowUp size={22} strokeWidth={2.5} />
-            </button>
-          </form>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="なんでも聞いてください！"
+                className="input-field"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                className="input-action-btn send-btn"
+                disabled={!input.trim() || isLoading}
+                aria-label="送信"
+              >
+                <ArrowUp size={22} strokeWidth={2.5} />
+              </button>
+            </form>
+            <div className="detail-mode-bar">
+              <button
+                type="button"
+                className={`detail-mode-btn${detailMode ? ' detail-mode-btn--active' : ''}`}
+                onClick={() => setDetailMode((prev) => !prev)}
+              >
+                もっと詳しく
+              </button>
+              <span className="detail-mode-hint">
+                より詳しい情報が欲しい方は、左のボタンをクリックして聞いてください
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -278,7 +293,7 @@ export default function Home() {
 
   // ── Chat screen ──────────────────────────────────────────────────
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
+    <div className="page-screen">
       <div className="app-background" />
 
       <div
@@ -287,7 +302,7 @@ export default function Home() {
           zIndex: 1,
           display: 'flex',
           flexDirection: 'column',
-          height: '100vh',
+          height: '100%',
           maxWidth: '480px',
           margin: '0 auto',
         }}
@@ -366,6 +381,18 @@ export default function Home() {
               <ArrowUp size={22} strokeWidth={2.5} />
             </button>
           </form>
+          <div className="detail-mode-bar">
+            <button
+              type="button"
+              className={`detail-mode-btn${detailMode ? ' detail-mode-btn--active' : ''}`}
+              onClick={() => setDetailMode((prev) => !prev)}
+            >
+              もっと詳しく
+            </button>
+            <span className="detail-mode-hint">
+              より詳しい情報が欲しい方は、左のボタンをクリックして聞いてください
+            </span>
+          </div>
         </footer>
       </div>
     </div>

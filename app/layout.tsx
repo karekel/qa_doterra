@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Dela_Gothic_One } from "next/font/google";
 import "./globals.css";
 
@@ -21,6 +21,12 @@ const delaGothic = Dela_Gothic_One({
 export const metadata: Metadata = {
   title: "ELIGO bot",
   description: "ELIGOチームのQAアシスタント - doTERRAオイルの使い方や体験談をサポート",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

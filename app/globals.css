@@ -32,6 +32,9 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  /* Ensure content respects notch / home indicator on iOS */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Background image for chat screen */
@@ -263,6 +266,24 @@ body {
   position: relative;
 }
 
+/* ===== Mobile viewport height fix ===== */
+/* Use dvh (dynamic viewport height) to avoid iOS Safari address-bar cut-off */
+.page-screen {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.page-screen-min {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
 /* ===== Login page (frosted glass redesign) ===== */
 
 /* Full-screen background image */
@@ -275,16 +296,31 @@ body {
   z-index: 0;
 }
 
-/* Animated decorative circle */
+/* Animated decorative circle — organic wave/blob motion */
 @keyframes circle-float {
-  0%, 100% {
+  0% {
     transform: translate(-50%, -50%) scale(1);
+    border-radius: 50%;
+  }
+  20% {
+    transform: translate(-50%, -55%) scale(1.07);
+    border-radius: 54% 46% 44% 56% / 56% 44% 54% 46%;
   }
   40% {
-    transform: translate(-50%, -52%) scale(1.045);
+    transform: translate(-52%, -50%) scale(1.04);
+    border-radius: 46% 54% 56% 44% / 48% 56% 44% 52%;
   }
-  70% {
-    transform: translate(-50%, -48%) scale(0.968);
+  60% {
+    transform: translate(-50%, -45%) scale(0.95);
+    border-radius: 52% 48% 48% 52% / 44% 56% 46% 54%;
+  }
+  80% {
+    transform: translate(-48%, -50%) scale(1.03);
+    border-radius: 48% 52% 54% 46% / 54% 46% 52% 48%;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    border-radius: 50%;
   }
 }
 
@@ -317,7 +353,7 @@ body {
     radial-gradient(ellipse 100% 100% at 50% 50%, rgba(254, 250, 255, 0.86) 0%, rgba(235, 224, 250, 0.28) 100%);
   box-shadow: 0 0 55px 6px rgba(165, 140, 215, 0.16);
   z-index: 0;
-  animation: circle-float 8s ease-in-out infinite;
+  animation: circle-float 6s ease-in-out infinite;
 }
 
 /* Logo image + BOT text side by side */
@@ -353,15 +389,16 @@ body {
   position: relative;
   z-index: 10;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 20px 80px;
+  padding: env(safe-area-inset-top, 0px) 20px max(80px, env(safe-area-inset-bottom, 0px));
   gap: 0;
 }
 
-/* Frosted glass card — slightly overlaps circle bottom */
+/* Frosted glass card — width matches the circle above */
 .login-card-glass {
   background: rgba(255, 255, 255, 0.40);
   backdrop-filter: blur(28px);
@@ -372,7 +409,7 @@ body {
     0 24px 64px rgba(0, 0, 0, 0.10),
     0 8px 24px rgba(0, 0, 0, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  width: min(340px, 45vw);
+  width: clamp(240px, 44vw, 560px);
   padding: 36px 32px;
   display: flex;
   flex-direction: column;
@@ -481,4 +518,45 @@ body {
   75% {
     transform: translateX(-4px);
   }
+}
+
+/* ===== "もっと詳しく" toggle button ===== */
+.detail-mode-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 0 4px;
+}
+
+.detail-mode-btn {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: rgba(210, 190, 235, 0.45);
+  color: #6B4226;
+  border: 1.5px solid rgba(200, 175, 225, 0.55);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.detail-mode-btn:hover {
+  background: rgba(200, 175, 228, 0.62);
+}
+
+.detail-mode-btn--active {
+  background: rgba(185, 155, 220, 0.65);
+  box-shadow: inset 0 2px 6px rgba(100, 60, 120, 0.28);
+  border-color: rgba(160, 130, 200, 0.75);
+  color: #5a3018;
+}
+
+.detail-mode-hint {
+  font-size: 12px;
+  color: #7a6050;
+  line-height: 1.5;
 }
