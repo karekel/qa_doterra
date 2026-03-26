@@ -21,6 +21,10 @@ const delaGothic = Dela_Gothic_One({
 export const metadata: Metadata = {
   title: "ELIGO bot",
   description: "ELIGOチームのQAアシスタント - doTERRAオイルの使い方や体験談をサポート",
+  icons: {
+    apple: "/apple-touch-icon.jpg",
+    icon: "/apple-touch-icon.jpg",
+  },
 };
 
 export const viewport: Viewport = {
