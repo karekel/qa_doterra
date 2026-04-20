@@ -1,8 +1,8 @@
-import { generateText } from 'ai';
+import { streamText } from 'ai';
 import { google } from '@ai-sdk/google';
 import { getContext } from '@/lib/rag';
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
     const body = await req.json();
@@ -130,54 +130,19 @@ doTERRAのエッセンシャルオイルやサプリメントに詳しいアド�
         content: m.content,
     }));
 
-    const MAX_RETRIES = 3;
-    const BASE_DELAY_MS = 5000;
+    try {
+        console.log('Generating text with Gemini (streaming)...');
+        const result = streamText({
+            model: google('gemini-2.5-flash'),
+            system: systemPrompt,
+            messages: coreMessages,
+        });
 
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-        try {
-            console.log(`Generating text with Gemini... (attempt ${attempt}/${MAX_RETRIES})`);
-            const { text } = await generateText({
-                model: google('gemini-2.5-flash'),
-                system: systemPrompt,
-                messages: coreMessages,
-            });
+        return result.toTextStreamResponse();
 
-            console.log('Generation complete:', text.substring(0, 50) + '...');
-
-            // Post-process: remove any markdown formatting that slipped through
-            let cleanText = text
-                .replace(/\*\*/g, '')
-                .replace(/^#{1,6}\s/gm, '')
-                .replace(/^---$/gm, '')
-                .replace(/^___$/gm, '')
-                .replace(/```[\s\S]*?```/g, '')
-                .replace(/`([^`]+)`/g, '$1');
-
-            // Post-process: remove forbidden names
-            cleanText = cleanText
-                .replace(/千紗/g, 'メンバー')
-                .replace(/ちさ/g, 'メンバー')
-                .replace(/チサ/g, 'メンバー')
-                .replace(/ケラ/g, 'メンバー')
-                .replace(/けら/g, 'メンバー');
-
-            return new Response(JSON.stringify({ role: 'assistant', content: cleanText }), {
-                headers: { 'Content-Type': 'application/json' },
-            });
-
-        } catch (error) {
-            const errorMsg = error instanceof Error ? error.message : String(error);
-            const isRateLimit = errorMsg.includes('quota') || errorMsg.includes('429') || errorMsg.includes('RESOURCE_EXHAUSTED');
-
-            if (isRateLimit && attempt < MAX_RETRIES) {
-                const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1); // 5s, 10s, 20s
-                console.log(`Rate limited. Retrying in ${delay / 1000}s... (attempt ${attempt}/${MAX_RETRIES})`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                continue;
-            }
-
-            console.error(`Gemini API Error (attempt ${attempt}):`, error);
-            return new Response(JSON.stringify({ error: 'Error processing request', details: errorMsg }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-        }
+    } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error('Gemini API Error:', error);
+        return new Response(JSON.stringify({ error: 'Error processing request', details: errorMsg }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 }

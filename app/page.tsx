@@ -86,8 +86,39 @@ export default function Home() {
 
       if (!response.ok) throw new Error(response.statusText);
 
-      const data = await response.json();
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.content }]);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let accumulated = '';
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+
+        // Post-process: remove markdown and forbidden names
+        let clean = accumulated
+          .replace(/\*\*/g, '')
+          .replace(/^#{1,6}\s/gm, '')
+          .replace(/^---$/gm, '')
+          .replace(/^___$/gm, '')
+          .replace(/```[\s\S]*?```/g, '')
+          .replace(/`([^`]+)`/g, '$1')
+          .replace(/千紗/g, 'メンバー')
+          .replace(/ちさ/g, 'メンバー')
+          .replace(/チサ/g, 'メンバー')
+          .replace(/ケラ/g, 'メンバー')
+          .replace(/けら/g, 'メンバー');
+
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'assistant', content: clean };
+          return updated;
+        });
+      }
     } catch (error) {
       console.error('Chat error:', error);
       setMessages((prev) => [
